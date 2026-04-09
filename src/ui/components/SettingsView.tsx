@@ -37,6 +37,7 @@ export default function SettingsView({ settings, onSettingsChange, onBack }: Set
         {/* Tabs */}
         <div className="w-48 border-r border-gray-700 p-2">
           <TabButton active={activeTab === 'openai'} onClick={() => setActiveTab('openai')}>OpenAI</TabButton>
+          <TabButton active={activeTab === 'aliyun'} onClick={() => setActiveTab('aliyun')}>阿里云</TabButton>
           <TabButton active={activeTab === 'comfyui'} onClick={() => setActiveTab('comfyui')}>ComfyUI</TabButton>
           <TabButton active={activeTab === 'a1111'} onClick={() => setActiveTab('a1111')}>A1111</TabButton>
           <TabButton active={activeTab === 'local-diffusers'} onClick={() => setActiveTab('local-diffusers')}>Local Diffusers</TabButton>
@@ -67,6 +68,48 @@ export default function SettingsView({ settings, onSettingsChange, onBack }: Set
                   onChange={(e) => handleChange('openai', { ...localSettings.openai, modelName: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
                   placeholder="dall-e-3"
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'aliyun' && (
+            <div className="max-w-md space-y-4">
+              <h2 className="text-xl font-bold mb-4">阿里云 DashScope 设置</h2>
+              <div>
+                <label className="block text-sm font-medium mb-1">API Key</label>
+                <input
+                  type="password"
+                  value={localSettings.aliyun.apiKey}
+                  onChange={(e) => handleChange('aliyun', { ...localSettings.aliyun, apiKey: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="sk-..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  在 <a href="https://dashscope.console.aliyun.com/apiKey" target="_blank" className="text-blue-400 hover:underline">阿里云 DashScope 控制台</a> 获取
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">模型名称</label>
+                <input
+                  type="text"
+                  value={localSettings.aliyun.modelName}
+                  onChange={(e) => handleChange('aliyun', { ...localSettings.aliyun, modelName: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="wanx-v1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  支持：wanx-v1, wanx2.1, 或其他 DashScope 文生图模型
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">API 端点</label>
+                <input
+                  type="text"
+                  value={localSettings.aliyun.endpoint}
+                  onChange={(e) => handleChange('aliyun', { ...localSettings.aliyun, endpoint: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="https://dashscope.aliyuncs.com"
                 />
               </div>
             </div>
@@ -317,11 +360,12 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 function getDefaultSettings(): AppSettings {
   return {
     openai: { apiKey: '', modelName: 'dall-e-3' },
+    aliyun: { apiKey: '', modelName: 'wanx-v1', endpoint: 'https://dashscope.aliyuncs.com' },
     comfyui: { serverUrl: 'http://127.0.0.1:8188', workflowJson: '', useBuiltInWorkflow: true },
     a1111: { baseUrl: 'http://127.0.0.1:7860', steps: 20, cfg: 7, denoise: 0.75, sampler: 'Euler a', checkpointName: '', loraNames: '' },
     localDiffusers: { modelPath: '', device: 'cuda', loraFolderPath: '' },
     output: { folderPath: '' },
     pixelEnforcement: { nearestNeighborOnly: true, quantizeColors: true, paletteSize: 32 },
-    selectedProviderId: 'openai'
+    selectedProviderId: 'aliyun'
   };
 }

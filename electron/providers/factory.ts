@@ -3,12 +3,14 @@
 import { AIProvider, ProviderConstructor } from './types';
 import { ProviderId } from '../../src/shared/types';
 import { OpenAIProvider } from './openai';
+import { AliyunProvider } from './aliyun';
 import { ComfyUIProvider } from './comfyui';
 import { A1111Provider } from './a1111';
 import { LocalDiffusersProvider } from './local-diffusers';
 
 const providers: Record<ProviderId, ProviderConstructor> = {
   openai: OpenAIProvider,
+  aliyun: AliyunProvider,
   comfyui: ComfyUIProvider,
   a1111: A1111Provider,
   'local-diffusers': LocalDiffusersProvider

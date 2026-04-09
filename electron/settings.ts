@@ -8,6 +8,11 @@ const defaultSettings: AppSettings = {
     apiKey: '',
     modelName: 'dall-e-3'
   },
+  aliyun: {
+    apiKey: '',
+    modelName: 'wanx-v1',
+    endpoint: 'https://dashscope.aliyuncs.com'
+  },
   comfyui: {
     serverUrl: 'http://127.0.0.1:8188',
     workflowJson: '',
@@ -35,7 +40,7 @@ const defaultSettings: AppSettings = {
     quantizeColors: true,
     paletteSize: 32
   },
-  selectedProviderId: 'openai'
+  selectedProviderId: 'aliyun'
 };
 
 const store = new Store<AppSettings>({
@@ -55,6 +60,7 @@ export function getProviderSettings(providerId: ProviderId): any {
   const settings = store.store;
   switch (providerId) {
     case 'openai': return settings.openai;
+    case 'aliyun': return settings.aliyun;
     case 'comfyui': return settings.comfyui;
     case 'a1111': return settings.a1111;
     case 'local-diffusers': return settings.localDiffusers;
