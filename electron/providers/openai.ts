@@ -23,7 +23,7 @@ export class OpenAIProvider implements AIProvider {
   }
 
   async generateSpriteSheet(
-    inputImagePath: string,
+    _inputImagePath: string,
     prompt: string,
     options: SpriteGenerationOptions
   ): Promise<GeneratedImageResult> {
