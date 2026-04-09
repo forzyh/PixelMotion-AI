@@ -34,18 +34,19 @@ export class OpenAIProvider implements AIProvider {
 
     console.log('[OpenAI] Generating image with model:', this.settings.modelName);
     console.log('[OpenAI] Base URL:', this.settings.baseURL || 'default (api.openai.com)');
-    console.log('[OpenAI] Input image:', inputImagePath);
+    console.log('[OpenAI] Prompt:', prompt);
 
     try {
-      // Use image-to-image (edit) mode
-      const response = await client.images.edit({
+      // Use text-to-image mode (more widely supported)
+      const response = await client.images.generate({
         model: this.settings.modelName,
-        image: require('fs').createReadStream(inputImagePath),
         prompt: prompt,
         n: 1,
         size: '1024x1024',
         response_format: 'b64_json'
       });
+
+      console.log('[OpenAI] Response received');
 
       const imageData = response.data?.[0]?.b64_json;
       if (!imageData) {
@@ -64,6 +65,8 @@ export class OpenAIProvider implements AIProvider {
 
       // Get dimensions
       const metadata = await require('sharp')(tempPath).metadata();
+
+      console.log('[OpenAI] Image saved to:', tempPath);
 
       return {
         imagePath: tempPath,
