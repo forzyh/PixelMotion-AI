@@ -100,7 +100,17 @@ export default function App() {
   };
 
   if (currentView === 'settings') {
-    return <SettingsView settings={settings} onSettingsChange={setSettings} onBack={() => setCurrentView('home')} />;
+    return (
+      <SettingsView
+        settings={settings}
+        onSettingsChange={setSettings}
+        onBack={() => setCurrentView('home')}
+        onProvidersRefresh={async () => {
+          const updatedProviders = await window.electronAPI.getProviders();
+          setProviders(updatedProviders);
+        }}
+      />
+    );
   }
 
   if (currentView === 'history') {

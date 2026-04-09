@@ -7,9 +7,10 @@ interface SettingsViewProps {
   settings: AppSettings | null;
   onSettingsChange: (settings: AppSettings) => void;
   onBack: () => void;
+  onProvidersRefresh?: () => void;
 }
 
-export default function SettingsView({ settings, onSettingsChange, onBack }: SettingsViewProps) {
+export default function SettingsView({ settings, onSettingsChange, onBack, onProvidersRefresh }: SettingsViewProps) {
   const [activeTab, setActiveTab] = useState<ProviderId | 'output' | 'pixel'>('openai');
   const [localSettings, setLocalSettings] = useState<AppSettings>(settings || getDefaultSettings());
 
@@ -21,6 +22,10 @@ export default function SettingsView({ settings, onSettingsChange, onBack }: Set
 
   const handleSave = async () => {
     await window.electronAPI.saveSettings(localSettings);
+    // Refresh provider list to show updated configuration status
+    if (onProvidersRefresh) {
+      await onProvidersRefresh();
+    }
     alert('Settings saved!');
   };
 
