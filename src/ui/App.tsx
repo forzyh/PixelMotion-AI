@@ -166,17 +166,19 @@ export default function App() {
         />
 
         {/* Center: Image Upload + Preview */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <ImageUploader
-            image={uploadedImage}
-            onImageSelect={(dataUrl, path) => {
-              setUploadedImage(dataUrl);
-              setUploadedImagePath(path);
-            }}
-          />
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-shrink-0">
+            <ImageUploader
+              image={uploadedImage}
+              onImageSelect={(dataUrl, path) => {
+                setUploadedImage(dataUrl);
+                setUploadedImagePath(path);
+              }}
+            />
+          </div>
 
           {/* Prompt Editor + Provider */}
-          <div className="flex-1 flex min-h-0">
+          <div className="flex-1 flex min-h-0 overflow-hidden">
             <PromptEditor
               selectedMotionId={selectedMotions[0]}
               frameCount={frameCount}
@@ -197,13 +199,15 @@ export default function App() {
           </div>
 
           {/* Output Panel */}
-          <OutputPanel
-            isGenerating={isGenerating}
-            result={generationResult}
-            onGenerate={handleGenerate}
-            onCancel={handleCancel}
-            canGenerate={!!uploadedImagePath && selectedMotions.length > 0}
-          />
+          <div className="flex-shrink-0">
+            <OutputPanel
+              isGenerating={isGenerating}
+              result={generationResult}
+              onGenerate={handleGenerate}
+              onCancel={handleCancel}
+              canGenerate={!!uploadedImagePath && selectedMotions.length > 0}
+            />
+          </div>
         </div>
       </main>
     </div>
