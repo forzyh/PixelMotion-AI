@@ -8,6 +8,7 @@ import OpenAI from 'openai';
 interface OpenAISettings {
   apiKey: string;
   modelName: string;
+  baseURL?: string;
 }
 
 export class OpenAIProvider implements AIProvider {
@@ -26,7 +27,10 @@ export class OpenAIProvider implements AIProvider {
     prompt: string,
     options: SpriteGenerationOptions
   ): Promise<GeneratedImageResult> {
-    const client = new OpenAI({ apiKey: this.settings.apiKey });
+    const client = new OpenAI({
+      apiKey: this.settings.apiKey,
+      ...(this.settings.baseURL && { baseURL: this.settings.baseURL })
+    });
 
     // Read and encode input image as base64
     const imageBuffer = await fs.promises.readFile(inputImagePath);

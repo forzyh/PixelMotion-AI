@@ -69,6 +69,16 @@ export default function SettingsView({ settings, onSettingsChange, onBack }: Set
                   placeholder="dall-e-3"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Base URL (Optional)</label>
+                <input
+                  type="text"
+                  value={localSettings.openai.baseURL || ''}
+                  onChange={(e) => handleChange('openai', { ...localSettings.openai, baseURL: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="https://api.openai.com/v1"
+                />
+              </div>
             </div>
           )}
 
@@ -316,7 +326,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 
 function getDefaultSettings(): AppSettings {
   return {
-    openai: { apiKey: '', modelName: 'dall-e-3' },
+    openai: { apiKey: '', modelName: 'dall-e-3', baseURL: '' },
     comfyui: { serverUrl: 'http://127.0.0.1:8188', workflowJson: '', useBuiltInWorkflow: true },
     a1111: { baseUrl: 'http://127.0.0.1:7860', steps: 20, cfg: 7, denoise: 0.75, sampler: 'Euler a', checkpointName: '', loraNames: '' },
     localDiffusers: { modelPath: '', device: 'cuda', loraFolderPath: '' },

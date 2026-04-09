@@ -58,6 +58,7 @@ export interface AppSettings {
   openai: {
     apiKey: string;
     modelName: string;
+    baseURL?: string;
   };
   comfyui: {
     serverUrl: string;

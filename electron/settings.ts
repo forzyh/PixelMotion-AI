@@ -6,7 +6,8 @@ import { AppSettings, ProviderId } from '../src/shared/types';
 const defaultSettings: AppSettings = {
   openai: {
     apiKey: '',
-    modelName: 'dall-e-3'
+    modelName: 'dall-e-3',
+    baseURL: ''
   },
   comfyui: {
     serverUrl: 'http://127.0.0.1:8188',
