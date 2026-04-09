@@ -3,6 +3,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { SpriteSheetMetadata } from '../src/shared/types';
+import gifenc from 'gifenc';
 
 // Dynamic require for sharp to work with Electron
 const sharp = require('sharp');
@@ -82,4 +83,72 @@ export async function createThumbnail(
     })
     .png()
     .toFile(thumbnailPath);
+}
+
+/**
+ * Extract individual frames from a sprite sheet and create a GIF
+ */
+export async function createGifFromSpriteSheet(
+  spriteSheetPath: string,
+  gifPath: string,
+  frameWidth: number,
+  frameHeight: number,
+  frameCount: number,
+  fps: number = 8,
+  quantizeColors: boolean = true,
+  paletteSize: number = 32
+): Promise<void> {
+  // Read the sprite sheet
+  const spriteSheet = sharp(spriteSheetPath);
+  const metadata = await spriteSheet.metadata();
+
+  // Extract each frame and collect raw pixels
+  const frames: Buffer[] = [];
+
+  for (let i = 0; i < frameCount; i++) {
+    const x = i * frameWidth;
+
+    // Extract frame
+    const frameBuffer = await sharp(spriteSheetPath)
+      .extract({
+        left: x,
+        top: 0,
+        width: frameWidth,
+        height: frameHeight
+      })
+      .raw()
+      .toBuffer();
+
+    frames.push(frameBuffer);
+  }
+
+  // Create GIF using gifenc
+  const fpsClamped = Math.max(1, Math.min(30, fps));
+  const duration = Math.round(1000 / fpsClamped);
+
+  // First frame as global palette source
+  const firstFrame = frames[0];
+  const width = frameWidth;
+  const height = frameHeight;
+
+  // Create GIF
+  const gif = gifenc(firstFrame, width, height, {
+    loop: 0, // Infinite loop
+    palette: quantizeColors ? 'neuquant' : 'rgbquant',
+    colors: paletteSize,
+    delay: duration
+  });
+
+  // Add remaining frames
+  for (let i = 1; i < frames.length; i++) {
+    gif.writeFrame(frames[i], width, height, {
+      palette: quantizeColors ? 'neuquant' : 'rgbquant',
+      colors: paletteSize,
+      delay: duration
+    });
+  }
+
+  // Finalize and save
+  const gifBuffer = Buffer.from(gif.bytes());
+  await fs.promises.writeFile(gifPath, gifBuffer);
 }

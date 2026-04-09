@@ -37,6 +37,7 @@ export interface GenerateResult {
   success: boolean;
   outputPath?: string;
   jsonPath?: string;
+  gifPath?: string;
   error?: string;
   metadata?: SpriteSheetMetadata;
 }

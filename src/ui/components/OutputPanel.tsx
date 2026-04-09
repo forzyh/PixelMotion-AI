@@ -2,7 +2,7 @@
 
 interface OutputPanelProps {
   isGenerating: boolean;
-  result: { outputPath: string; jsonPath: string } | null;
+  result: { outputPath: string; jsonPath: string; gifPath?: string } | null;
   onGenerate: () => void;
   onCancel: () => void;
   canGenerate: boolean;
@@ -52,6 +52,14 @@ export default function OutputPanel({ isGenerating, result, onGenerate, onCancel
                 >
                   Open Folder
                 </button>
+                {result.gifPath && (
+                  <button
+                    onClick={() => window.open(result.gifPath)}
+                    className="px-4 py-2 bg-green-700 hover:bg-green-600 rounded font-medium text-sm"
+                  >
+                    Open GIF
+                  </button>
+                )}
                 <button
                   onClick={() => window.open(result.outputPath)}
                   className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded font-medium text-sm"

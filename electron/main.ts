@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import { getSettings, saveSettings, getProviderSettings } from './settings';
 import { createProvider, getAllProviderInfo } from './providers/factory';
 import { GenerateRequest, GenerateResult, HistoryEntry, SpriteSheetMetadata } from '../src/shared/types';
-import { postProcessImage, createSpriteSheetMetadata, saveMetadata, createThumbnail } from './postprocess';
+import { postProcessImage, createSpriteSheetMetadata, saveMetadata, createThumbnail, createGifFromSpriteSheet } from './postprocess';
 import { addToHistory, getHistory, deleteHistoryEntry } from './history';
 
 let mainWindow: BrowserWindow | null = null;
@@ -135,6 +135,19 @@ ipcMain.handle('generate', async (_, request: GenerateRequest): Promise<Generate
     const thumbnailPath = finalPath.replace('.png', '_thumb.png');
     await createThumbnail(finalPath, thumbnailPath);
 
+    // Create GIF animation
+    const gifPath = finalPath.replace('.png', '.gif');
+    await createGifFromSpriteSheet(
+      finalPath,
+      gifPath,
+      request.frameWidth,
+      request.frameHeight,
+      request.frameCount,
+      8, // 8 FPS default
+      pixelSettings.quantizeColors,
+      pixelSettings.paletteSize
+    );
+
     // Add to history
     const historyEntry: HistoryEntry = {
       id: Date.now().toString(),
@@ -156,6 +169,7 @@ ipcMain.handle('generate', async (_, request: GenerateRequest): Promise<Generate
       success: true,
       outputPath: finalPath,
       jsonPath,
+      gifPath,
       metadata
     };
   } catch (error) {

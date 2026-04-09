@@ -27,7 +27,7 @@ export default function App() {
   const [frameHeight, setFrameHeight] = useState(32);
   const [extraInstructions, setExtraInstructions] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationResult, setGenerationResult] = useState<{ outputPath: string; jsonPath: string } | null>(null);
+  const [generationResult, setGenerationResult] = useState<{ outputPath: string; jsonPath: string; gifPath?: string } | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   // Load settings and providers on mount
