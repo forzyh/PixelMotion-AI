@@ -32,6 +32,7 @@ export default defineConfig({
   renderer: {
     root: '.',
     plugins: [react()],
+    base: './',
     build: {
       outDir: '../dist/renderer',
       rollupOptions: {
@@ -39,6 +40,10 @@ export default defineConfig({
           index: resolve(__dirname, 'index.html')
         }
       }
+    },
+    server: {
+      origin: 'http://localhost:5173',
+      port: 5173
     }
   }
 })
