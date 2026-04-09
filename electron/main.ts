@@ -119,7 +119,8 @@ ipcMain.handle('generate', async (_, request: GenerateRequest): Promise<Generate
     await postProcessImage(result.imagePath, finalPath, {
       nearestNeighbor: pixelSettings.nearestNeighborOnly,
       quantizeColors: pixelSettings.quantizeColors,
-      paletteSize: pixelSettings.paletteSize
+      paletteSize: pixelSettings.paletteSize,
+      removeBackground: pixelSettings.removeBackground
     });
 
     // Create metadata

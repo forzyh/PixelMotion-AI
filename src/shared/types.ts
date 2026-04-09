@@ -98,6 +98,7 @@ export interface AppSettings {
     nearestNeighborOnly: boolean;
     quantizeColors: boolean;
     paletteSize: number;
+    removeBackground: boolean;
   };
   selectedProviderId: ProviderId;
 }

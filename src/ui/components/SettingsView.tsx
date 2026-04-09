@@ -381,6 +381,15 @@ export default function SettingsView({ settings, onSettingsChange, onBack, onPro
                 />
                 <label className="text-sm">Quantize Colors</label>
               </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={localSettings.pixelEnforcement.removeBackground}
+                  onChange={(e) => handleChange('pixelEnforcement', { ...localSettings.pixelEnforcement, removeBackground: e.target.checked })}
+                  className="accent-blue-500"
+                />
+                <label className="text-sm">Remove Background (requires rembg)</label>
+              </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Palette Size</label>
                 <input

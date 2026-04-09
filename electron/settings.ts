@@ -45,7 +45,8 @@ const defaultSettings: AppSettings = {
   pixelEnforcement: {
     nearestNeighborOnly: true,
     quantizeColors: true,
-    paletteSize: 32
+    paletteSize: 32,
+    removeBackground: true
   },
   selectedProviderId: 'aliyun'
 };

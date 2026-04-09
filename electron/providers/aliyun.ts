@@ -34,6 +34,10 @@ export class AliyunProvider implements AIProvider {
     const model = this.settings.modelName || 'wanx-v1';
     const endpoint = this.settings.endpoint || 'https://dashscope.aliyuncs.com';
 
+    // Add frame count instruction to prompt
+    const frameInstruction = `, ${options.frameCount} frames sprite sheet, arrange frames in 2 rows`;
+    const fullPrompt = prompt + frameInstruction;
+
     // Call Aliyun DashScope API
     const response = await fetch(`${endpoint}/api/v1/services/aigc/text-generation/generation`, {
       method: 'POST',
@@ -45,7 +49,7 @@ export class AliyunProvider implements AIProvider {
       body: JSON.stringify({
         model: model,
         input: {
-          prompt: prompt,
+          prompt: fullPrompt,
           // For image-to-image, use the ref_img parameter if supported
           ref_img: `data:image/png;base64,${base64Image}`
         },

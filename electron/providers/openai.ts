@@ -25,18 +25,22 @@ export class OpenAIProvider implements AIProvider {
   async generateSpriteSheet(
     inputImagePath: string,
     prompt: string,
-    _options: SpriteGenerationOptions
+    options: SpriteGenerationOptions
   ): Promise<GeneratedImageResult> {
     const client = new OpenAI({
       apiKey: this.settings.apiKey,
       ...(this.settings.baseURL && { baseURL: this.settings.baseURL })
     });
 
+    // Add frame count instruction to prompt
+    const frameInstruction = `, ${options.frameCount} frames sprite sheet, arrange frames in 2 rows`;
+    const fullPrompt = prompt + frameInstruction;
+
     // Use image-to-image (edit) mode
     const response = await client.images.edit({
       model: this.settings.modelName,
       image: require('fs').createReadStream(inputImagePath),
-      prompt: prompt,
+      prompt: fullPrompt,
       n: 1,
       size: '1024x1024',
       response_format: 'b64_json'

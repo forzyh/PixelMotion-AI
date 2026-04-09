@@ -25,11 +25,15 @@ export class DoubaoProvider implements AIProvider {
   async generateSpriteSheet(
     inputImagePath: string,
     prompt: string,
-    _options: SpriteGenerationOptions
+    options: SpriteGenerationOptions
   ): Promise<GeneratedImageResult> {
     // Read input image and convert to base64
     const imageBuffer = fs.readFileSync(inputImagePath);
     const base64Image = imageBuffer.toString('base64');
+
+    // Add frame count instruction to prompt
+    const frameInstruction = `, ${options.frameCount} frames sprite sheet, arrange frames in 2 rows, each frame ${options.frameWidth}x${options.frameHeight} pixels`;
+    const fullPrompt = prompt + frameInstruction;
 
     // Call Doubao image-to-image API
     const response = await fetch(this.settings.apiUrl, {
@@ -40,7 +44,7 @@ export class DoubaoProvider implements AIProvider {
       },
       body: JSON.stringify({
         model: this.settings.modelName,
-        prompt: prompt,
+        prompt: fullPrompt,
         img_url: `data:image/jpeg;base64,${base64Image}`,
         response_format: 'url',
         size: this.settings.size || '2560x1440',

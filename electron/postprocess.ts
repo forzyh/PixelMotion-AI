@@ -4,6 +4,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { SpriteSheetMetadata } from '../src/shared/types';
 import gifenc from 'gifenc';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+
+const execFileAsync = promisify(execFile);
 
 // Dynamic require for sharp to work with Electron
 const sharp = require('sharp');
@@ -13,6 +17,25 @@ interface PostProcessOptions {
   quantizeColors: boolean;
   paletteSize: number;
   targetScale?: number;
+  removeBackground?: boolean;
+}
+
+/**
+ * Remove background from image using rembg
+ */
+export async function removeBackground(
+  inputPath: string,
+  outputPath: string
+): Promise<void> {
+  const scriptPath = path.join(__dirname, 'remove-bg.py');
+
+  try {
+    const result = await execFileAsync('python3', [scriptPath, inputPath, outputPath]);
+    console.log(`Background removed: ${outputPath}`);
+  } catch (error: any) {
+    console.error('Error removing background:', error.message);
+    throw new Error(`Failed to remove background: ${error.message}`);
+  }
 }
 
 export async function postProcessImage(
@@ -24,6 +47,24 @@ export async function postProcessImage(
 
   // Get metadata
   const metadata = await pipeline.metadata();
+
+  // Remove background if requested
+  if (options.removeBackground) {
+    const tempPath = outputPath.replace('.png', '_temp.png');
+    await pipeline.png().toFile(tempPath);
+
+    await removeBackground(tempPath, outputPath);
+
+    // Clean up temp file
+    try {
+      await fs.promises.unlink(tempPath);
+    } catch (e) {
+      // Ignore temp file cleanup error
+    }
+
+    // Re-open the background-removed image for further processing
+    pipeline = sharp(outputPath);
+  }
 
   // Apply nearest-neighbor scaling if needed
   if (options.nearestNeighbor && options.targetScale) {
@@ -52,11 +93,15 @@ export function createSpriteSheetMetadata(
   providerId: string,
   prompt: string
 ): SpriteSheetMetadata {
+  // Determine layout based on frame count (2 rows for more frames)
+  const layout: 'row' | 'grid' = frames > 8 ? 'grid' : 'row';
+  const framesPerRow = layout === 'grid' ? Math.ceil(frames / 2) : frames;
+
   return {
     frameWidth,
     frameHeight,
     frames,
-    layout: 'row',
+    layout: layout as any,
     suggestedPivot: { x: Math.floor(frameWidth / 2), y: frameHeight },
     providerId: providerId as any,
     prompt,
@@ -107,15 +152,24 @@ export async function createGifFromSpriteSheet(
 
   console.log(`Creating GIF: ${spriteWidth}x${spriteHeight}, frame: ${frameWidth}x${frameHeight}, frames: ${frameCount}`);
 
+  // Calculate frames per row (assuming 2 rows)
+  const framesPerRow = Math.ceil(frameCount / 2);
+
+  console.log(`Sprite sheet layout: ${framesPerRow} frames per row, 2 rows`);
+
   // Extract each frame and collect raw pixels
   const frames: Buffer[] = [];
 
   for (let i = 0; i < frameCount; i++) {
-    const x = i * frameWidth;
+    // Calculate position for 2-row layout
+    const rowIndex = Math.floor(i / framesPerRow);
+    const colIndex = i % framesPerRow;
+    const x = colIndex * frameWidth;
+    const y = rowIndex * frameHeight;
 
     // Boundary check - skip frames that exceed sprite sheet bounds
-    if (x + frameWidth > spriteWidth || frameHeight > spriteHeight) {
-      console.warn(`Frame ${i} exceeds sprite sheet bounds (${x}+${frameWidth} > ${spriteWidth}), skipping`);
+    if (x + frameWidth > spriteWidth || y + frameHeight > spriteHeight) {
+      console.warn(`Frame ${i} exceeds sprite sheet bounds (${x},${y}), skipping`);
       continue;
     }
 
@@ -123,7 +177,7 @@ export async function createGifFromSpriteSheet(
     const frameBuffer = await sharp(spriteSheetPath)
       .extract({
         left: x,
-        top: 0,
+        top: y,
         width: frameWidth,
         height: frameHeight
       })
