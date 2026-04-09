@@ -23,22 +23,23 @@ export class OpenAIProvider implements AIProvider {
   }
 
   async generateSpriteSheet(
-    _inputImagePath: string,
+    inputImagePath: string,
     prompt: string,
-    options: SpriteGenerationOptions
+    _options: SpriteGenerationOptions
   ): Promise<GeneratedImageResult> {
     const client = new OpenAI({
       apiKey: this.settings.apiKey,
       ...(this.settings.baseURL && { baseURL: this.settings.baseURL })
     });
 
-    // Use text-to-image mode (ignore input image for generation)
-    const response = await client.images.generate({
+    // Use image-to-image (edit) mode
+    const response = await client.images.edit({
       model: this.settings.modelName,
+      image: require('fs').createReadStream(inputImagePath),
       prompt: prompt,
       n: 1,
       size: '1024x1024',
-      response_format: 'b64_json'  // Use base64 to avoid URL download issues
+      response_format: 'b64_json'
     });
 
     const imageData = response.data?.[0]?.b64_json;
