@@ -4,9 +4,10 @@
   "description": "AI-powered pixel sprite motion sheet generator",
   "main": "dist-electron/main.js",
   "scripts": {
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
-    "preview": "electron-vite preview",
+    "dev": "npm run build:main && electron-vite dev",
+    "build": "npm run build:main && electron-vite build",
+    "build:main": "esbuild electron/main.ts --bundle --platform=node --target=node18 --outfile=dist-electron/main.js --format=cjs --external:sharp --external:electron-store --external:openai",
+    "preview": "npm run build:main && electron-vite preview",
     "dist:win": "electron-builder --win --config electron-builder.config.js",
     "typecheck": "tsc --noEmit"
   },
@@ -27,6 +28,7 @@
     "electron-builder": "^24.9.1",
     "electron-rebuild": "^3.2.9",
     "electron-vite": "^2.0.0",
+    "esbuild": "^0.20.2",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
