@@ -1,9 +1,11 @@
 // electron/postprocess.ts
 
-import sharp from 'sharp';
 import * as path from 'path';
 import * as fs from 'fs';
 import { SpriteSheetMetadata } from '../src/shared/types';
+
+// Dynamic require for sharp to work with Electron
+const sharp = require('sharp');
 
 interface PostProcessOptions {
   nearestNeighbor: boolean;

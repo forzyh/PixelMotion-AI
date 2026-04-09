@@ -23,7 +23,7 @@ export class LocalDiffusersProvider implements AIProvider {
   constructor(private settings: LocalDiffusersSettings) {}
 
   isConfigured(): boolean {
-    return !!this.settings.modelPath && fs.existsSync(this.settings.modelPath);
+    return !!this.settings?.modelPath && fs.existsSync(this.settings.modelPath);
   }
 
   async start(): Promise<{ success: boolean; error?: string }> {

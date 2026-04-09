@@ -4,28 +4,36 @@ import { resolve } from 'path'
 
 export default defineConfig({
   main: {
+    root: 'electron',
     build: {
-      outDir: 'dist-electron',
+      outDir: '../dist-electron',
       lib: {
-        entry: 'electron/main.ts',
+        entry: 'main.ts',
         formats: ['cjs']
       }
-    }
+    },
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, '../src')
+      }
+    },
+    external: ['sharp', 'electron-store', 'openai']
   },
   preload: {
+    root: 'electron',
     build: {
-      outDir: 'dist-electron',
+      outDir: '../dist-electron',
       lib: {
-        entry: 'electron/preload.ts',
+        entry: 'preload.ts',
         formats: ['cjs']
       }
     }
   },
   renderer: {
-    plugins: [react()],
     root: '.',
+    plugins: [react()],
     build: {
-      outDir: 'dist/renderer',
+      outDir: '../dist/renderer',
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'index.html')

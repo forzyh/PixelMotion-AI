@@ -11,24 +11,25 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "electron-store": "^8.1.0",
+    "openai": "^4.28.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.33.2",
-    "electron-store": "^8.1.0",
-    "openai": "^4.28.0"
+    "sharp": "^0.33.2"
   },
   "devDependencies": {
+    "@types/node": "^20.11.16",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
-    "@types/node": "^20.11.16",
     "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.17",
     "electron": "^29.0.0",
     "electron-builder": "^24.9.1",
+    "electron-rebuild": "^3.2.9",
     "electron-vite": "^2.0.0",
-    "typescript": "^5.3.3",
-    "vite": "^5.1.0",
-    "tailwindcss": "^3.4.1",
     "postcss": "^8.4.35",
-    "autoprefixer": "^10.4.17"
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.0"
   }
 }
