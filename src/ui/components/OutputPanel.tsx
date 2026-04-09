@@ -47,7 +47,7 @@ export default function OutputPanel({ isGenerating, result, onGenerate, onCancel
             {result && (
               <>
                 <button
-                  onClick={() => require('electron').shell.showItemInFolder(result.outputPath)}
+                  onClick={() => window.electronAPI.showItemInFolder(result.outputPath)}
                   className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded font-medium text-sm"
                 >
                   Open Folder

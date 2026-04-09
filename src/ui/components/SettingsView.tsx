@@ -20,6 +20,9 @@ export default function SettingsView({ settings, onSettingsChange, onBack, onPro
     onSettingsChange(updated);
   };
 
+  // Ensure doubao settings exist (fix for existing users without doubao config)
+  const doubaoSettings = localSettings.doubao || getDefaultSettings().doubao;
+
   const handleSave = async () => {
     await window.electronAPI.saveSettings(localSettings);
     // Refresh provider list to show updated configuration status
@@ -42,6 +45,7 @@ export default function SettingsView({ settings, onSettingsChange, onBack, onPro
         {/* Tabs */}
         <div className="w-48 border-r border-gray-700 p-2">
           <TabButton active={activeTab === 'openai'} onClick={() => setActiveTab('openai')}>OpenAI</TabButton>
+          <TabButton active={activeTab === 'doubao'} onClick={() => setActiveTab('doubao')}>Doubao</TabButton>
           <TabButton active={activeTab === 'comfyui'} onClick={() => setActiveTab('comfyui')}>ComfyUI</TabButton>
           <TabButton active={activeTab === 'a1111'} onClick={() => setActiveTab('a1111')}>A1111</TabButton>
           <TabButton active={activeTab === 'local-diffusers'} onClick={() => setActiveTab('local-diffusers')}>Local Diffusers</TabButton>
@@ -82,6 +86,52 @@ export default function SettingsView({ settings, onSettingsChange, onBack, onPro
                   onChange={(e) => handleChange('openai', { ...localSettings.openai, baseURL: e.target.value })}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
                   placeholder="https://api.openai.com/v1"
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'doubao' && (
+            <div className="max-w-md space-y-4">
+              <h2 className="text-xl font-bold mb-4">Doubao Settings</h2>
+              <div>
+                <label className="block text-sm font-medium mb-1">API Key</label>
+                <input
+                  type="password"
+                  value={doubaoSettings.apiKey}
+                  onChange={(e) => handleChange('doubao', { ...doubaoSettings, apiKey: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="300001216:..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">API URL</label>
+                <input
+                  type="text"
+                  value={doubaoSettings.apiUrl}
+                  onChange={(e) => handleChange('doubao', { ...doubaoSettings, apiUrl: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="http://ai-service.tal.com/openai-compatible/v1/images/generations"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Model Name</label>
+                <input
+                  type="text"
+                  value={doubaoSettings.modelName}
+                  onChange={(e) => handleChange('doubao', { ...doubaoSettings, modelName: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="doubao-seedream-5-0-lite"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Size (Optional)</label>
+                <input
+                  type="text"
+                  value={doubaoSettings.size || ''}
+                  onChange={(e) => handleChange('doubao', { ...doubaoSettings, size: e.target.value })}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="2560x1440"
                 />
               </div>
             </div>
@@ -332,6 +382,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 function getDefaultSettings(): AppSettings {
   return {
     openai: { apiKey: '', modelName: 'dall-e-3', baseURL: '' },
+    doubao: { apiKey: '', apiUrl: 'http://ai-service.tal.com/openai-compatible/v1/images/generations', modelName: 'doubao-seedream-5-0-lite', size: '2560x1440' },
     comfyui: { serverUrl: 'http://127.0.0.1:8188', workflowJson: '', useBuiltInWorkflow: true },
     a1111: { baseUrl: 'http://127.0.0.1:7860', steps: 20, cfg: 7, denoise: 0.75, sampler: 'Euler a', checkpointName: '', loraNames: '' },
     localDiffusers: { modelPath: '', device: 'cuda', loraFolderPath: '' },

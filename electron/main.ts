@@ -1,6 +1,6 @@
 // electron/main.ts
 
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { getSettings, saveSettings, getProviderSettings } from './settings';
@@ -177,6 +177,10 @@ ipcMain.handle('cancel-generation', () => {
 ipcMain.handle('get-history', () => getHistory());
 
 ipcMain.handle('delete-history-entry', (_, id) => deleteHistoryEntry(id));
+
+ipcMain.handle('show-item-in-folder', (_, filePath: string) => {
+  shell.showItemInFolder(filePath);
+});
 
 ipcMain.handle('select-output-folder', async () => {
   const result = await dialog.showOpenDialog(mainWindow!, {

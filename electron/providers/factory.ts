@@ -6,9 +6,11 @@ import { OpenAIProvider } from './openai';
 import { ComfyUIProvider } from './comfyui';
 import { A1111Provider } from './a1111';
 import { LocalDiffusersProvider } from './local-diffusers';
+import { DoubaoProvider } from './doubao';
 
 const providers: Record<ProviderId, ProviderConstructor> = {
   openai: OpenAIProvider,
+  doubao: DoubaoProvider,
   comfyui: ComfyUIProvider,
   a1111: A1111Provider,
   'local-diffusers': LocalDiffusersProvider

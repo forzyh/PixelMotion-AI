@@ -17,7 +17,7 @@ export interface ProviderInfo {
   isLocal: boolean;
 }
 
-export type ProviderId = 'openai' | 'comfyui' | 'a1111' | 'local-diffusers';
+export type ProviderId = 'openai' | 'comfyui' | 'a1111' | 'local-diffusers' | 'doubao';
 
 // Generation request from UI to main process
 export interface GenerateRequest {
@@ -59,6 +59,12 @@ export interface AppSettings {
     apiKey: string;
     modelName: string;
     baseURL?: string;
+  };
+  doubao: {
+    apiKey: string;
+    apiUrl: string;
+    modelName: string;
+    size?: string;
   };
   comfyui: {
     serverUrl: string;
