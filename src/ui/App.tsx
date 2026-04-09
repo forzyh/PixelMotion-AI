@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { MOTION_PRESETS, getMotionPresetById } from '../shared/motion-presets';
 import { AppSettings, ProviderId, GenerateRequest, HistoryEntry } from '../shared/types';
-import { buildBasePrompt, buildFullPrompt } from '../shared/prompt-templates';
+import { buildBasePrompt } from '../shared/prompt-templates';
 import MotionList from './components/MotionList';
 import ImageUploader from './components/ImageUploader';
 import PromptEditor from './components/PromptEditor';
@@ -15,7 +15,7 @@ import HistoryView from './components/HistoryView';
 type View = 'home' | 'settings' | 'history';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<View>('home');
+  const [currentView, setCurrentView] = useState<View | string>('home');
   const [selectedMotions, setSelectedMotions] = useState<string[]>([]);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImagePath, setUploadedImagePath] = useState<string | null>(null);

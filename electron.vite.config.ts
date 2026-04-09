@@ -1,5 +1,6 @@
 import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 export default defineConfig({
   main: {
@@ -22,8 +23,14 @@ export default defineConfig({
   },
   renderer: {
     plugins: [react()],
+    root: '.',
     build: {
-      outDir: 'dist/renderer'
+      outDir: 'dist/renderer',
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'index.html')
+        }
+      }
     }
   }
 })

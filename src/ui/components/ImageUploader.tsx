@@ -32,9 +32,8 @@ export default function ImageUploader({ image, onImageSelect }: ImageUploaderPro
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
-      // Save to app data directory and return path
-      // For now, we'll use a temp approach - the main process handles actual file paths
-      onImageSelect(dataUrl, file.path || '');
+      // Note: file.path is Electron-specific, empty string as fallback
+      onImageSelect(dataUrl, (file as any).path || '');
     };
     reader.readAsDataURL(file);
   };
