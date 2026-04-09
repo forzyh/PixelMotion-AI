@@ -57,6 +57,25 @@ npm run dev
 
 ## Provider Configuration
 
+### 阿里云 DashScope (推荐/国内)
+
+1. 获取 API Key：
+   - 访问 [阿里云 DashScope 控制台](https://dashscope.console.aliyun.com/apiKey)
+   - 登录并创建 API Key
+
+2. 在 PixelMotion AI → 设置 → 阿里云：
+   - API Key: 输入你的密钥
+   - 模型名称：`wanx-v1` 或 `wanx2.1`
+   - API 端点：`https://dashscope.aliyuncs.com` (默认)
+
+3. 点击"Ping Server"验证连接
+
+**支持模型：**
+- `wanx-v1` - 通义万相第一代
+- `wanx2.1` - 最新版本，效果更好
+
+**成本：** 按阿里云 DashScope 定价计费
+
 ### OpenAI (Cloud)
 
 1. Get an API key from [platform.openai.com](https://platform.openai.com)
