@@ -8,6 +8,7 @@ import OpenAI from 'openai';
 interface OpenAISettings {
   apiKey: string;
   modelName: string;
+  baseURL?: string;
 }
 
 export class OpenAIProvider implements AIProvider {
@@ -24,33 +25,30 @@ export class OpenAIProvider implements AIProvider {
   async generateSpriteSheet(
     inputImagePath: string,
     prompt: string,
-    options: SpriteGenerationOptions
+    _options: SpriteGenerationOptions
   ): Promise<GeneratedImageResult> {
-    const client = new OpenAI({ apiKey: this.settings.apiKey });
+    const client = new OpenAI({
+      apiKey: this.settings.apiKey,
+      ...(this.settings.baseURL && { baseURL: this.settings.baseURL })
+    });
 
-    // Read and encode input image as base64
-    const imageBuffer = await fs.promises.readFile(inputImagePath);
-    const base64Image = imageBuffer.toString('base64');
-    const dataUrl = `data:image/png;base64,${base64Image}`;
-
-    // Call OpenAI image generation API
-    const response = await client.images.generate({
+    // Use image-to-image (edit) mode
+    const response = await client.images.edit({
       model: this.settings.modelName,
+      image: require('fs').createReadStream(inputImagePath),
       prompt: prompt,
       n: 1,
       size: '1024x1024',
-      response_format: 'url'
+      response_format: 'b64_json'
     });
 
-    const imageUrl = response.data[0].url;
-    if (!imageUrl) {
-      throw new Error('OpenAI did not return an image URL');
+    const imageData = response.data?.[0]?.b64_json;
+    if (!imageData) {
+      throw new Error('OpenAI did not return image data');
     }
 
-    // Download the generated image
-    const imageResponse = await fetch(imageUrl);
-    const imageBufferResult = await imageResponse.arrayBuffer();
-    const resultBuffer = Buffer.from(imageBufferResult);
+    // Decode base64 and save
+    const resultBuffer = Buffer.from(imageData, 'base64');
 
     // Save to temp path
     const tempPath = path.join(

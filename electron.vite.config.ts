@@ -24,6 +24,7 @@ export default defineConfig({
   },
   renderer: {
     plugins: [react()],
+    base: './',
     root: '.',
     build: {
       outDir: 'dist/renderer',
@@ -32,6 +33,10 @@ export default defineConfig({
           index: resolve(__dirname, 'index.html')
         }
       }
+    },
+    server: {
+      origin: 'http://localhost:5173',
+      port: 5173
     }
   }
 })

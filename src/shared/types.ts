@@ -17,7 +17,7 @@ export interface ProviderInfo {
   isLocal: boolean;
 }
 
-export type ProviderId = 'openai' | 'comfyui' | 'a1111' | 'local-diffusers' | 'aliyun';
+export type ProviderId = 'openai' | 'comfyui' | 'a1111' | 'local-diffusers' | 'aliyun' | 'doubao';
 
 // Generation request from UI to main process
 export interface GenerateRequest {
@@ -58,6 +58,13 @@ export interface AppSettings {
   openai: {
     apiKey: string;
     modelName: string;
+    baseURL?: string;
+  };
+  doubao: {
+    apiKey: string;
+    apiUrl: string;
+    modelName: string;
+    size?: string;
   };
   aliyun: {
     apiKey: string;

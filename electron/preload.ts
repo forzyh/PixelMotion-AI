@@ -22,5 +22,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // File operations
   selectOutputFolder: () => ipcRenderer.invoke('select-output-folder'),
-  getDefaultOutputFolder: () => ipcRenderer.invoke('get-default-output-folder')
+  getDefaultOutputFolder: () => ipcRenderer.invoke('get-default-output-folder'),
+  showItemInFolder: (path: string) => ipcRenderer.invoke('show-item-in-folder', path)
 });

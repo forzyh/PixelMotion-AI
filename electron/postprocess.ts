@@ -33,16 +33,15 @@ export async function postProcessImage(
     );
   }
 
-  // Apply color quantization
+  // Apply color quantization using png() option
+  const pngOptions: any = {};
   if (options.quantizeColors) {
-    pipeline = pipeline.quantize({
-      colours: options.paletteSize,
-      method: 'mediancut'
-    });
+    pngOptions.palette = true;
+    pngOptions.colors = options.paletteSize;
   }
 
   // Save as PNG
-  await pipeline.png().toFile(outputPath);
+  await pipeline.png(pngOptions).toFile(outputPath);
 }
 
 export function createSpriteSheetMetadata(
