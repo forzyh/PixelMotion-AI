@@ -102,11 +102,22 @@ export async function createGifFromSpriteSheet(
   const spriteSheet = sharp(spriteSheetPath);
   const metadata = await spriteSheet.metadata();
 
+  const spriteWidth = metadata.width;
+  const spriteHeight = metadata.height;
+
+  console.log(`Creating GIF: ${spriteWidth}x${spriteHeight}, frame: ${frameWidth}x${frameHeight}, frames: ${frameCount}`);
+
   // Extract each frame and collect raw pixels
   const frames: Buffer[] = [];
 
   for (let i = 0; i < frameCount; i++) {
     const x = i * frameWidth;
+
+    // Boundary check - skip frames that exceed sprite sheet bounds
+    if (x + frameWidth > spriteWidth || frameHeight > spriteHeight) {
+      console.warn(`Frame ${i} exceeds sprite sheet bounds (${x}+${frameWidth} > ${spriteWidth}), skipping`);
+      continue;
+    }
 
     // Extract frame
     const frameBuffer = await sharp(spriteSheetPath)
@@ -120,6 +131,14 @@ export async function createGifFromSpriteSheet(
       .toBuffer();
 
     frames.push(frameBuffer);
+  }
+
+  console.log(`Extracted ${frames.length} frames for GIF`);
+
+  // Check if we have any frames
+  if (frames.length === 0) {
+    console.error('No frames extracted, cannot create GIF');
+    throw new Error(`No valid frames extracted from sprite sheet. Sprite: ${spriteWidth}x${spriteHeight}, Frame: ${frameWidth}x${frameHeight}, Count: ${frameCount}`);
   }
 
   // Create GIF using gifenc
@@ -151,4 +170,5 @@ export async function createGifFromSpriteSheet(
   // Finalize and save
   const gifBuffer = Buffer.from(gif.bytes());
   await fs.promises.writeFile(gifPath, gifBuffer);
+  console.log(`GIF created: ${gifPath}, ${gifBuffer.length} bytes`);
 }

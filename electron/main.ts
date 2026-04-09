@@ -9,6 +9,8 @@ import { GenerateRequest, GenerateResult, HistoryEntry, SpriteSheetMetadata } fr
 import { postProcessImage, createSpriteSheetMetadata, saveMetadata, createThumbnail, createGifFromSpriteSheet } from './postprocess';
 import { addToHistory, getHistory, deleteHistoryEntry } from './history';
 
+const sharp = require('sharp');
+
 let mainWindow: BrowserWindow | null = null;
 let currentGeneration: { cancel: () => void } | null = null;
 let generationCancelled = false;
@@ -27,9 +29,10 @@ function createWindow() {
   if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    // Development fallback: try common dev server ports
-    const devServerUrl = process.env.VITE_RENDERER_URL || 'http://localhost:5174';
-    mainWindow.loadURL(devServerUrl);
+    // Load built renderer files
+    const rendererPath = path.join(__dirname, '../dist/renderer/index.html');
+    console.log('Loading renderer from:', rendererPath);
+    mainWindow.loadFile(rendererPath);
   }
 }
 
@@ -136,12 +139,18 @@ ipcMain.handle('generate', async (_, request: GenerateRequest): Promise<Generate
     await createThumbnail(finalPath, thumbnailPath);
 
     // Create GIF animation
+    // Calculate actual frame dimensions from the final sprite sheet
+    const finalSpriteSheet = sharp(finalPath);
+    const finalMetadata = await finalSpriteSheet.metadata();
+    const actualFrameWidth = Math.floor(finalMetadata.width! / request.frameCount);
+    const actualFrameHeight = finalMetadata.height!;
+
     const gifPath = finalPath.replace('.png', '.gif');
     await createGifFromSpriteSheet(
       finalPath,
       gifPath,
-      request.frameWidth,
-      request.frameHeight,
+      actualFrameWidth,
+      actualFrameHeight,
       request.frameCount,
       8, // 8 FPS default
       pixelSettings.quantizeColors,

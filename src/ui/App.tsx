@@ -32,6 +32,10 @@ export default function App() {
 
   // Load settings and providers on mount
   useEffect(() => {
+    if (!window.electronAPI) {
+      console.error('electronAPI not available');
+      return;
+    }
     window.electronAPI.getSettings().then(setSettings);
     window.electronAPI.getProviders().then(setProviders);
     window.electronAPI.getHistory().then(setHistory);
