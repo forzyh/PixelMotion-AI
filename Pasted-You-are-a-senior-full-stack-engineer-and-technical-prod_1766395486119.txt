@@ -1,0 +1,226 @@
+You are a senior full-stack engineer and technical product designer.
+Build a Windows-only desktop app called “PixelMotion AI” that generates pixel sprite motion sheets from a single uploaded pixel character image using AI — and it MUST support both:
+(A) Cloud AI (OpenAI) and
+(B) Self-hosted / Local AI (offline or LAN server).
+
+GOAL
+- User uploads ONE pixel character image (PNG).
+- App shows 14 preset motion types and generates a sprite sheet for any selected motion.
+- Pixel-only output: crisp pixels, no blur, no anti-aliasing, no painterly style.
+- Output: PNG sprite sheet + JSON metadata (frame size, frame count, pivot recommendation).
+- Dev runs in Replit. Final build is Windows .exe.
+
+TECH STACK (required)
+- Electron (Windows desktop)
+- React + TypeScript UI
+- Node.js backend (inside Electron main or local Express server started by Electron)
+- Post-processing: Node “sharp”:
+  - nearest-neighbor scaling
+  - optional palette reduction / quantization
+- Packaging: electron-builder (Windows NSIS installer)
+
+CRITICAL: AI PROVIDER ABSTRACTION (must implement)
+Implement an AIProvider interface so we can switch between providers:
+
+interface AIProvider {
+  id: "openai" | "comfyui" | "a1111" | "local-diffusers";
+  displayName: string;
+  isConfigured(): boolean;
+  generateSpriteSheet(inputImagePath, prompt, options): Promise<GeneratedImageResult>;
+}
+
+The UI must let the user choose the provider per generation.
+
+AI MODES (must support)
+1) OpenAI Mode (cloud)
+- Uses OpenAI image generation API.
+- Requires OPENAI_API_KEY in Settings.
+- Model name is configurable.
+
+2) Self AI Mode (local / offline / LAN)
+Support at least ONE of these self AI options (preferably more):
+A) ComfyUI HTTP API (recommended)
+- User runs ComfyUI locally (127.0.0.1) or on LAN (e.g., 192.168.x.x).
+- App sends: reference image + prompt + workflow template.
+- Provide Settings fields:
+  - ComfyUI server URL
+  - Workflow JSON (editable text area) OR built-in workflow templates
+  - Optional: ControlNet / IPAdapter toggle fields (if workflow supports)
+
+B) Automatic1111 (Stable Diffusion WebUI) API
+- User provides A1111 base URL and API endpoints.
+- App sends img2img request: init image + prompt + parameters.
+- Settings fields:
+  - A1111 URL
+  - Sampler, steps, CFG, denoise, width/height
+  - Optional: “pixel model” checkpoint name and LoRA names
+
+C) Local Diffusers (embedded Python service) [optional but strongly desired]
+- Bundle a minimal Python backend that runs locally (FastAPI) using diffusers.
+- The Electron app starts/stops the Python service automatically.
+- Settings fields:
+  - Model path (local folder)
+  - Device: CUDA / DirectML / CPU
+  - Optional LoRA folder path
+NOTE: This may be heavy. If too large for Replit, implement the integration but document that the model files are user-provided.
+
+SELF AI REQUIREMENTS (must implement)
+- The app must work WITHOUT sending images to any external service when using self AI providers.
+- Provide an “Offline Mode” indicator in UI when local provider is selected.
+- Provide robust connectivity checks (Ping button) for ComfyUI/A1111.
+- Provide readable error messages for:
+  - server unreachable
+  - workflow invalid
+  - missing model/checkpoint
+  - OOM / VRAM insufficient
+  - timeout
+
+MOTION PRESETS (must be visible by default)
+Show these motions in a left panel list. Each has:
+- name
+- short description
+- default frames (set default to 8 for all motions, user editable per motion)
+Motions:
+1) Idle – breathing loop
+2) Run – movement loop
+3) Jump Up – takeoff to ascent
+4) Jump Fall – descent
+5) Land – landing recovery
+6) Attack 1 – main attack
+7) Hit – damage reaction
+8) Death – death animation
+9) Attack 2 – combo follow-up
+10) Attack 3 – combo finisher
+11) Dash – quick burst
+12) Slide/Skid – stop motion
+13) Crouch – duck
+14) Climb/Ledge Grab – ledge action
+
+UX / SCREENS (required)
+1) Home Screen (Main)
+- Left: motion preset list with checkboxes (multi-select allowed).
+- Center: upload area (drag & drop PNG) + preview of base sprite.
+- Right: prompt editor:
+  - “Base Style” locked template (pixel-only constraints)
+  - “Motion Prompt” auto-filled based on selected motion
+  - Frame count input (default 8)
+  - Frame size inputs (auto-suggest from uploaded image)
+  - Provider selector: OpenAI / ComfyUI / A1111 / Local Diffusers
+  - Buttons: Generate Selected / Generate One / Cancel
+- Output panel:
+  - preview of generated sprite sheet
+  - export buttons: Save PNG, Save JSON, Open Output Folder
+
+2) Settings Screen
+- Provider tabs:
+  A) OpenAI
+    - API key input
+    - model name input
+  B) ComfyUI
+    - server URL
+    - workflow template selector (built-in)
+    - workflow JSON editor (advanced)
+  C) A1111
+    - base URL
+    - default img2img parameters (steps, cfg, denoise, sampler)
+    - checkpoint and optional LoRA fields
+  D) Local Diffusers (optional)
+    - start/stop local python service
+    - model path and device selection
+- Output folder selection
+- Pixel enforcement options:
+  - Nearest-neighbor only (default ON)
+  - Quantize colors (default ON) + palette size (default 32–48)
+
+3) History Screen
+- list of past generations with thumbnails
+- re-open and export again
+- store provider + prompt + options used
+
+PROMPTING RULES (must implement)
+- Always generate ONE motion per request.
+- Force pixel constraints in every provider:
+  - “2D pixel art sprite sheet”
+  - “side view, facing right”
+  - “crisp pixels, no blur, no anti-aliasing”
+  - “consistent character proportions across all frames”
+  - “plain transparent background look”
+- Force a strict layout:
+  - “Arrange frames in a single horizontal row of N frames”
+- Motion-specific cues (per preset):
+  - Idle: subtle breathing, cloak/scarf secondary motion
+  - Run: readable leg separation, consistent silhouette
+  - Jump Up/Fall: clear arcs and anticipation
+  - Land: impact -> crouch -> recover
+  - Attacks: wind-up -> strike -> follow-through
+  - Hit: recoil -> recover
+  - Death: collapse -> final pose
+  - Dash/Slide: speed pose -> settle
+  - Crouch: lower silhouette
+  - Climb/Ledge: hang -> pull up
+- Allow user “extra instructions” appended at the end.
+
+POST-PROCESSING (must implement)
+After AI returns an image:
+- If output is not pixel-perfect, apply pipeline:
+  1) resize to target scale using nearest-neighbor
+  2) optional color quantization
+  3) background cleanup (if user selects a background key color)
+- Save PNG + JSON metadata:
+  - frameWidth, frameHeight, frames, layout (row/col), suggestedPivot (center bottom)
+
+PROJECT STRUCTURE (deliver)
+- /electron/main.ts (provider selection, file I/O, launching python if used)
+- /electron/providers/openai.ts
+- /electron/providers/comfyui.ts
+- /electron/providers/a1111.ts
+- /electron/providers/localDiffusers.ts (optional)
+- /src/ui (React components)
+- /src/shared (types)
+- /src/services (prompt templates, postprocess)
+- /assets (icons)
+
+SCRIPTS (package.json)
+- npm run dev
+- npm run build
+- npm run dist:win (electron-builder)
+
+README (must include)
+- How to run on Replit
+- How to build Windows .exe on a Windows machine
+- How to configure each provider:
+  - OpenAI: API key and model
+  - ComfyUI: server URL + workflow
+  - A1111: URL + params + checkpoint/LoRA
+  - Local Diffusers: how to install python deps and provide model files
+- Troubleshooting:
+  - server unreachable, quota, timeout, VRAM OOM
+- Security note:
+  - local mode never uploads images externally
+
+REPLIT CONSTRAINTS (must address)
+- Replit may not produce Windows .exe directly.
+- Development should work in Replit.
+- Final .exe build instructions:
+  - clone repo to Windows
+  - npm install
+  - npm run dist:win
+- Keep everything in one repo.
+
+IMPLEMENTATION TASKS (step-by-step, must do)
+1) Scaffold Electron + React + TS project (electron-vite or equivalent).
+2) Build UI panels (Motions / Input / Output) + provider selector.
+3) Add motion presets + prompt templates (TypeScript).
+4) Implement AIProvider abstraction + OpenAI provider.
+5) Implement at least one Self AI provider (ComfyUI recommended) with Ping + error handling.
+6) Implement post-processing with sharp.
+7) Save/export PNG + JSON to output folder.
+8) Implement Settings storage (per provider).
+9) Implement History storage (local JSON + thumbnails).
+10) Add packaging (electron-builder) and Windows dist scripts.
+11) Provide README and verify TypeScript compile.
+
+DELIVERABLE
+- Output full working code (multiple files) with exact paths and contents.
+- Ensure it compiles and runs.
+- Do not skip required features above.
