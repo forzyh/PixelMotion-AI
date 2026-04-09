@@ -32,29 +32,22 @@ export class OpenAIProvider implements AIProvider {
       ...(this.settings.baseURL && { baseURL: this.settings.baseURL })
     });
 
-    // Read and encode input image as base64
-    const imageBuffer = await fs.promises.readFile(inputImagePath);
-    const base64Image = imageBuffer.toString('base64');
-    const dataUrl = `data:image/png;base64,${base64Image}`;
-
-    // Call OpenAI image generation API
+    // Use text-to-image mode (ignore input image for generation)
     const response = await client.images.generate({
       model: this.settings.modelName,
       prompt: prompt,
       n: 1,
       size: '1024x1024',
-      response_format: 'url'
+      response_format: 'b64_json'  // Use base64 to avoid URL download issues
     });
 
-    const imageUrl = response.data[0].url;
-    if (!imageUrl) {
-      throw new Error('OpenAI did not return an image URL');
+    const imageData = response.data?.[0]?.b64_json;
+    if (!imageData) {
+      throw new Error('OpenAI did not return image data');
     }
 
-    // Download the generated image
-    const imageResponse = await fetch(imageUrl);
-    const imageBufferResult = await imageResponse.arrayBuffer();
-    const resultBuffer = Buffer.from(imageBufferResult);
+    // Decode base64 and save
+    const resultBuffer = Buffer.from(imageData, 'base64');
 
     // Save to temp path
     const tempPath = path.join(
